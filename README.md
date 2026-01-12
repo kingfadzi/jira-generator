@@ -60,6 +60,48 @@ Alternative module invocation:
 python -m jira_generator.main --all
 ```
 
+## Project Onboarding
+
+Onboard projects to add risk trigger fields to all project screens (Create, Edit/View, Resolve):
+
+```bash
+# Single project
+python -m jira_generator.onboard_project TECHCON
+
+# Multiple projects
+python -m jira_generator.onboard_project TECHCON AIOPS DATA GOV DEVEX
+
+# Dry run (preview without changes)
+python -m jira_generator.onboard_project TECHCON --dry-run
+
+# Verbose output
+python -m jira_generator.onboard_project TECHCON -v
+```
+
+This adds the following fields to all project screens:
+- Risk: External Boundary (Yes/No)
+- Risk: Sensitive Data (Yes/No)
+- Risk: Security Controls (Yes/No)
+- Risk: ML/AI Model Change (Yes/No)
+- Risk: Critical Logic (Yes/No)
+
+## Custom Fields Setup
+
+Create custom fields for constraints and story risk triggers:
+
+```bash
+python -m jira_generator.setup_custom_fields
+```
+
+This creates:
+- **Constraint fields**: Risk Materiality, Mitigation Plan, Guild
+- **Risk trigger fields**: 5 Yes/No select fields for story risk assessment
+
+**Note:** After creating select fields, configure options manually in Jira Admin:
+1. Go to Jira Admin → Issues → Custom Fields
+2. Click Configure contexts on each select field
+3. Add the Yes/No options
+
 ## What Gets Created
 
 | Type | Count |
@@ -97,12 +139,13 @@ jira-generator/
     │   └── constraints.py  # Constraint definitions
     ├── setup_projects.py
     ├── setup_issue_types.py
-    ├── setup_custom_fields.py
+    ├── setup_custom_fields.py   # Create custom fields
     ├── setup_hierarchy.py
     ├── setup_constraints.py
     ├── setup_versions.py
     ├── setup_feature_versions.py
     ├── setup_component_mapping.py
+    ├── onboard_project.py        # Onboard projects with risk fields
     └── teardown.py
 ```
 

@@ -561,6 +561,53 @@ class JiraClient:
     # Screens
     # =========================================================================
 
+    def get_screens(self) -> List[Dict]:
+        """
+        Get all screens.
+
+        Returns:
+            List of screen objects with id and name
+        """
+        try:
+            result = self.get("/rest/api/2/screens")
+            # Handle both list response and paginated response
+            if isinstance(result, list):
+                return result
+            return result.get("values", [])
+        except requests.HTTPError as e:
+            logger.error(f"Failed to get screens: {e}")
+            return []
+
+    def get_project_screens(self, project_key: str) -> List[Dict]:
+        """
+        Get all screens for a project by matching screen name prefix.
+
+        Args:
+            project_key: Project key (e.g., 'TECHCON')
+
+        Returns:
+            List of matching screen objects
+        """
+        all_screens = self.get_screens()
+        prefix = f"{project_key}:"
+        return [s for s in all_screens if s.get("name", "").startswith(prefix)]
+
+    def get_screen_tabs(self, screen_id: int) -> List[Dict]:
+        """
+        Get all tabs for a screen.
+
+        Args:
+            screen_id: Screen ID
+
+        Returns:
+            List of tab objects with id and name
+        """
+        try:
+            return self.get(f"/rest/api/2/screens/{screen_id}/tabs")
+        except requests.HTTPError as e:
+            logger.error(f"Failed to get tabs for screen {screen_id}: {e}")
+            return []
+
     def add_field_to_screen(self, screen_id: int, field_id: str) -> bool:
         """
         Add a field to a screen.
@@ -572,8 +619,16 @@ class JiraClient:
         Returns:
             True if successful or field already on screen
         """
+        # Get the first tab ID for this screen
+        tabs = self.get_screen_tabs(screen_id)
+        if not tabs:
+            logger.error(f"No tabs found for screen {screen_id}")
+            return False
+
+        tab_id = tabs[0]["id"]
+
         try:
-            self.post(f"/rest/api/2/screens/{screen_id}/tabs/0/fields", {"fieldId": field_id})
+            self.post(f"/rest/api/2/screens/{screen_id}/tabs/{tab_id}/fields", {"fieldId": field_id})
             logger.info(f"Added {field_id} to screen {screen_id}")
             return True
         except requests.HTTPError as e:
