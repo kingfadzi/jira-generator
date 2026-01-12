@@ -3,6 +3,7 @@ Setup Jira Projects.
 
 Creates the projects defined in data/projects.py.
 """
+
 import logging
 from typing import List, Dict
 
@@ -29,26 +30,30 @@ def setup_projects(client: JiraClient) -> List[Dict]:
 
         try:
             project = client.create_project(
-                key=project_def['key'],
-                name=project_def['name'],
-                description=project_def.get('description'),
-                lead=project_def.get('lead'),
-                project_type='software',
+                key=project_def["key"],
+                name=project_def["name"],
+                description=project_def.get("description"),
+                lead=project_def.get("lead"),
+                project_type="software",
             )
-            results.append({
-                'key': project_def['key'],
-                'name': project_def['name'],
-                'status': 'created' if project else 'exists',
-                'project': project,
-            })
+            results.append(
+                {
+                    "key": project_def["key"],
+                    "name": project_def["name"],
+                    "status": "created" if project else "exists",
+                    "project": project,
+                }
+            )
         except Exception as e:
             logger.error(f"Failed to create project {project_def['key']}: {e}")
-            results.append({
-                'key': project_def['key'],
-                'name': project_def['name'],
-                'status': 'error',
-                'error': str(e),
-            })
+            results.append(
+                {
+                    "key": project_def["key"],
+                    "name": project_def["name"],
+                    "status": "error",
+                    "error": str(e),
+                }
+            )
 
     return results
 
@@ -61,19 +66,21 @@ def verify_projects(client: JiraClient) -> Dict:
         Dict with verification results
     """
     results = {
-        'all_exist': True,
-        'projects': [],
+        "all_exist": True,
+        "projects": [],
     }
 
     for project_def in PROJECTS:
-        exists = client.project_exists(project_def['key'])
-        results['projects'].append({
-            'key': project_def['key'],
-            'name': project_def['name'],
-            'exists': exists,
-        })
+        exists = client.project_exists(project_def["key"])
+        results["projects"].append(
+            {
+                "key": project_def["key"],
+                "name": project_def["name"],
+                "exists": exists,
+            }
+        )
         if not exists:
-            results['all_exist'] = False
+            results["all_exist"] = False
 
     return results
 
@@ -84,9 +91,9 @@ def print_project_summary(results: List[Dict]):
     print("PROJECT SETUP SUMMARY")
     print("=" * 60)
 
-    created = [r for r in results if r['status'] == 'created']
-    existing = [r for r in results if r['status'] == 'exists']
-    errors = [r for r in results if r['status'] == 'error']
+    created = [r for r in results if r["status"] == "created"]
+    existing = [r for r in results if r["status"] == "exists"]
+    errors = [r for r in results if r["status"] == "error"]
 
     print(f"\nCreated: {len(created)}")
     for r in created:
@@ -104,7 +111,7 @@ def print_project_summary(results: List[Dict]):
     print("=" * 60 + "\n")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Allow running standalone for testing
     logging.basicConfig(level=logging.INFO)
 

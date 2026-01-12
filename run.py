@@ -7,6 +7,7 @@ Usage:
     python run.py --all
     python run.py --projects --hierarchy
 """
+
 import sys
 from jira_generator.main import main
 

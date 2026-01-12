@@ -3,6 +3,7 @@ Setup Jira Issue Types.
 
 Creates the Constraint issue type and verifies hierarchy issue types exist.
 """
+
 import logging
 from typing import List, Dict, Optional
 
@@ -26,21 +27,21 @@ def setup_constraint_issue_type(client: JiraClient) -> Dict:
 
     try:
         issue_type = client.create_issue_type(
-            name=CONSTRAINT_ISSUE_TYPE['name'],
-            description=CONSTRAINT_ISSUE_TYPE['description'],
-            type=CONSTRAINT_ISSUE_TYPE['type'],
+            name=CONSTRAINT_ISSUE_TYPE["name"],
+            description=CONSTRAINT_ISSUE_TYPE["description"],
+            type=CONSTRAINT_ISSUE_TYPE["type"],
         )
         return {
-            'name': CONSTRAINT_ISSUE_TYPE['name'],
-            'status': 'created' if issue_type else 'exists',
-            'issue_type': issue_type,
+            "name": CONSTRAINT_ISSUE_TYPE["name"],
+            "status": "created" if issue_type else "exists",
+            "issue_type": issue_type,
         }
     except Exception as e:
         logger.error(f"Failed to create Constraint issue type: {e}")
         return {
-            'name': CONSTRAINT_ISSUE_TYPE['name'],
-            'status': 'error',
-            'error': str(e),
+            "name": CONSTRAINT_ISSUE_TYPE["name"],
+            "status": "error",
+            "error": str(e),
         }
 
 
@@ -59,24 +60,26 @@ def verify_hierarchy_issue_types(client: JiraClient) -> Dict:
         Dict with verification results
     """
     results = {
-        'all_exist': True,
-        'issue_types': [],
-        'missing': [],
+        "all_exist": True,
+        "issue_types": [],
+        "missing": [],
     }
 
     for key, name in ISSUE_TYPE_NAMES.items():
-        if key == 'constraint':
+        if key == "constraint":
             continue  # Skip constraint, we create it ourselves
 
         exists = client.issue_type_exists(name)
-        results['issue_types'].append({
-            'key': key,
-            'name': name,
-            'exists': exists,
-        })
+        results["issue_types"].append(
+            {
+                "key": key,
+                "name": name,
+                "exists": exists,
+            }
+        )
         if not exists:
-            results['all_exist'] = False
-            results['missing'].append(name)
+            results["all_exist"] = False
+            results["missing"].append(name)
 
     return results
 
@@ -84,7 +87,7 @@ def verify_hierarchy_issue_types(client: JiraClient) -> Dict:
 def get_issue_type_id(client: JiraClient, name: str) -> Optional[str]:
     """Get the ID of an issue type by name."""
     issue_type = client.get_issue_type_by_name(name)
-    return issue_type['id'] if issue_type else None
+    return issue_type["id"] if issue_type else None
 
 
 def list_all_issue_types(client: JiraClient) -> List[Dict]:
@@ -100,28 +103,32 @@ def print_issue_type_summary(constraint_result: Dict, hierarchy_result: Dict):
 
     # Constraint issue type
     print("\nConstraint Issue Type:")
-    if constraint_result['status'] == 'created':
+    if constraint_result["status"] == "created":
         print(f"  + Created: {constraint_result['name']}")
-    elif constraint_result['status'] == 'exists':
+    elif constraint_result["status"] == "exists":
         print(f"  = Already exists: {constraint_result['name']}")
     else:
         print(f"  ! Error: {constraint_result.get('error', 'Unknown error')}")
 
     # Hierarchy issue types
     print("\nHierarchy Issue Types:")
-    for it in hierarchy_result['issue_types']:
-        status = "OK" if it['exists'] else "MISSING"
-        symbol = "+" if it['exists'] else "!"
+    for it in hierarchy_result["issue_types"]:
+        status = "OK" if it["exists"] else "MISSING"
+        symbol = "+" if it["exists"] else "!"
         print(f"  {symbol} {it['name']}: {status}")
 
-    if hierarchy_result['missing']:
-        print(f"\n  WARNING: Missing issue types: {', '.join(hierarchy_result['missing'])}")
-        print("  These must be created manually in Jira Admin or via Advanced Roadmaps setup.")
+    if hierarchy_result["missing"]:
+        print(
+            f"\n  WARNING: Missing issue types: {', '.join(hierarchy_result['missing'])}"
+        )
+        print(
+            "  These must be created manually in Jira Admin or via Advanced Roadmaps setup."
+        )
 
     print("=" * 60 + "\n")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Allow running standalone for testing
     logging.basicConfig(level=logging.INFO)
 

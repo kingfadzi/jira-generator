@@ -11,10 +11,10 @@ Usage:
     python -m jira.main --hierarchy
     python -m jira.main --constraints
 """
+
 import argparse
 import logging
 import sys
-from typing import Optional
 
 from .jira_client import JiraClient
 from .config import JIRA_CONFIG, get_required_env
@@ -32,7 +32,10 @@ from .setup_custom_fields import setup_custom_fields, print_custom_field_summary
 from .setup_hierarchy import setup_hierarchy, print_hierarchy_summary
 from .setup_constraints import setup_constraints, print_constraint_summary
 from .setup_versions import setup_versions, print_version_summary
-from .setup_feature_versions import setup_feature_versions, print_feature_version_summary
+from .setup_feature_versions import (
+    setup_feature_versions,
+    print_feature_version_summary,
+)
 from .setup_component_mapping import setup_component_mapping, print_mapping_summary
 from .teardown import teardown_issues, teardown_all, print_teardown_summary
 
@@ -42,12 +45,12 @@ def setup_logging(verbose: bool = False):
     level = logging.DEBUG if verbose else logging.INFO
     logging.basicConfig(
         level=level,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S',
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
     )
     # Reduce noise from requests library
-    logging.getLogger('urllib3').setLevel(logging.WARNING)
-    logging.getLogger('requests').setLevel(logging.WARNING)
+    logging.getLogger("urllib3").setLevel(logging.WARNING)
+    logging.getLogger("requests").setLevel(logging.WARNING)
 
 
 def print_banner():
@@ -65,10 +68,10 @@ def print_config_summary():
     """Print configuration summary."""
     print("Configuration:")
     print("-" * 40)
-    url = JIRA_CONFIG.get('base_url', 'NOT SET')
-    user = JIRA_CONFIG.get('username', 'NOT SET')
-    token = JIRA_CONFIG.get('token', '')
-    token_display = f"{token[:8]}..." if len(token) > 8 else 'NOT SET'
+    url = JIRA_CONFIG.get("base_url", "NOT SET")
+    user = JIRA_CONFIG.get("username", "NOT SET")
+    token = JIRA_CONFIG.get("token", "")
+    token_display = f"{token[:8]}..." if len(token) > 8 else "NOT SET"
 
     print(f"  JIRA_URL:   {url}")
     print(f"  JIRA_USER:  {user}")
@@ -86,7 +89,7 @@ def print_data_summary():
         print(f"    - {p['key']}: {p['name']}")
 
     hierarchy = count_items()
-    print(f"\n  Hierarchy:")
+    print("\n  Hierarchy:")
     print(f"    - Strategic Objectives: {hierarchy['strategic_objectives']}")
     print(f"    - Portfolio Epics:      {hierarchy['portfolio_epics']}")
     print(f"    - Business Outcomes:    {hierarchy['business_outcomes']}")
@@ -94,8 +97,8 @@ def print_data_summary():
 
     constraints = count_constraints()
     print(f"\n  Constraints: {constraints['total']}")
-    print(f"    By Guild:")
-    for guild, count in constraints['by_guild'].items():
+    print("    By Guild:")
+    for guild, count in constraints["by_guild"].items():
         print(f"      - {guild}: {count}")
 
     print()
@@ -106,7 +109,7 @@ def test_connection(client: JiraClient) -> bool:
     print("Testing Jira connection...")
     try:
         user = client.test_connection()
-        display_name = user.get('displayName', user.get('name', 'unknown'))
+        display_name = user.get("displayName", user.get("name", "unknown"))
         print(f"  Connected as: {display_name}")
         print(f"  Email: {user.get('emailAddress', 'N/A')}")
         print()
@@ -202,7 +205,7 @@ def run_component_mapping():
 def main():
     """Main entry point."""
     parser = argparse.ArgumentParser(
-        description='Populate Jira Data Center with LCT test data',
+        description="Populate Jira Data Center with LCT test data",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
@@ -222,49 +225,69 @@ Environment Variables:
   JIRA_URL    Jira Data Center base URL
   JIRA_USER   Jira username
   JIRA_TOKEN  Personal Access Token
-        """
+        """,
     )
 
-    parser.add_argument('--dry-run', action='store_true',
-                        help='Preview changes without making them')
-    parser.add_argument('--verbose', '-v', action='store_true',
-                        help='Enable verbose logging')
+    parser.add_argument(
+        "--dry-run", action="store_true", help="Preview changes without making them"
+    )
+    parser.add_argument(
+        "--verbose", "-v", action="store_true", help="Enable verbose logging"
+    )
 
     # Phase selection
-    parser.add_argument('--all', action='store_true',
-                        help='Run all setup phases')
-    parser.add_argument('--projects', action='store_true',
-                        help='Create Jira projects')
-    parser.add_argument('--issue-types', action='store_true',
-                        help='Create Constraint issue type')
-    parser.add_argument('--fields', action='store_true',
-                        help='Create custom fields')
-    parser.add_argument('--hierarchy', action='store_true',
-                        help='Create full hierarchy (SO->PE->BO->Feature)')
-    parser.add_argument('--versions', action='store_true',
-                        help='Create fix versions')
-    parser.add_argument('--feature-versions', action='store_true',
-                        help='Assign Features to fix versions')
-    parser.add_argument('--constraints', action='store_true',
-                        help='Create Constraint issues')
-    parser.add_argument('--component-mapping', action='store_true',
-                        help='Update component_mapping table with Jira projects')
+    parser.add_argument("--all", action="store_true", help="Run all setup phases")
+    parser.add_argument("--projects", action="store_true", help="Create Jira projects")
+    parser.add_argument(
+        "--issue-types", action="store_true", help="Create Constraint issue type"
+    )
+    parser.add_argument("--fields", action="store_true", help="Create custom fields")
+    parser.add_argument(
+        "--hierarchy",
+        action="store_true",
+        help="Create full hierarchy (SO->PE->BO->Feature)",
+    )
+    parser.add_argument("--versions", action="store_true", help="Create fix versions")
+    parser.add_argument(
+        "--feature-versions",
+        action="store_true",
+        help="Assign Features to fix versions",
+    )
+    parser.add_argument(
+        "--constraints", action="store_true", help="Create Constraint issues"
+    )
+    parser.add_argument(
+        "--component-mapping",
+        action="store_true",
+        help="Update component_mapping table with Jira projects",
+    )
 
     # Teardown options
-    parser.add_argument('--teardown', action='store_true',
-                        help='Delete all issues but keep projects')
-    parser.add_argument('--teardown-all', action='store_true',
-                        help='Delete everything including projects')
-    parser.add_argument('--rebuild', action='store_true',
-                        help='Teardown issues then run full setup')
+    parser.add_argument(
+        "--teardown", action="store_true", help="Delete all issues but keep projects"
+    )
+    parser.add_argument(
+        "--teardown-all",
+        action="store_true",
+        help="Delete everything including projects",
+    )
+    parser.add_argument(
+        "--rebuild", action="store_true", help="Teardown issues then run full setup"
+    )
 
     # Utility
-    parser.add_argument('--test-connection', action='store_true',
-                        help='Test Jira connection only')
-    parser.add_argument('--show-config', action='store_true',
-                        help='Show configuration and data summary')
-    parser.add_argument('--force', '-f', action='store_true',
-                        help='Skip confirmation prompts for destructive operations')
+    parser.add_argument(
+        "--test-connection", action="store_true", help="Test Jira connection only"
+    )
+    parser.add_argument(
+        "--show-config", action="store_true", help="Show configuration and data summary"
+    )
+    parser.add_argument(
+        "--force",
+        "-f",
+        action="store_true",
+        help="Skip confirmation prompts for destructive operations",
+    )
 
     args = parser.parse_args()
 
@@ -282,10 +305,21 @@ Environment Variables:
         return 0
 
     # Validate that at least one action is requested
-    actions = [args.all, args.projects, args.issue_types, args.fields,
-               args.hierarchy, args.versions, args.feature_versions, args.constraints,
-               args.component_mapping, args.test_connection, args.teardown,
-               args.teardown_all, args.rebuild]
+    actions = [
+        args.all,
+        args.projects,
+        args.issue_types,
+        args.fields,
+        args.hierarchy,
+        args.versions,
+        args.feature_versions,
+        args.constraints,
+        args.component_mapping,
+        args.test_connection,
+        args.teardown,
+        args.teardown_all,
+        args.rebuild,
+    ]
     if not any(actions):
         parser.print_help()
         print("\nError: No action specified. Use --all or specify individual phases.")
@@ -293,12 +327,12 @@ Environment Variables:
 
     # Validate environment (will exit if missing)
     try:
-        if not JIRA_CONFIG.get('base_url'):
-            get_required_env('JIRA_URL')
-        if not JIRA_CONFIG.get('username'):
-            get_required_env('JIRA_USER')
-        if not JIRA_CONFIG.get('token'):
-            get_required_env('JIRA_TOKEN')
+        if not JIRA_CONFIG.get("base_url"):
+            get_required_env("JIRA_URL")
+        if not JIRA_CONFIG.get("username"):
+            get_required_env("JIRA_USER")
+        if not JIRA_CONFIG.get("token"):
+            get_required_env("JIRA_TOKEN")
     except SystemExit:
         return 1
 
@@ -337,7 +371,7 @@ Environment Variables:
 
                 if not args.force and not args.dry_run:
                     confirm = input("\nType 'DELETE' to confirm: ")
-                    if confirm != 'DELETE':
+                    if confirm != "DELETE":
                         print("Aborted.")
                         return 0
             else:
@@ -347,7 +381,7 @@ Environment Variables:
 
                 if not args.force and not args.dry_run:
                     confirm = input("\nType 'yes' to confirm: ")
-                    if confirm.lower() != 'yes':
+                    if confirm.lower() != "yes":
                         print("Aborted.")
                         return 0
 
@@ -413,5 +447,5 @@ Environment Variables:
     return 0
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())
